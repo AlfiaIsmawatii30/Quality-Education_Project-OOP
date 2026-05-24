@@ -16,9 +16,18 @@ public class Materi {
         this.pembuat     = pembuat;
     }
 
-    public String getJudulMateri()             { return judulMateri; }
-    public void setValidasi(String validasi)   { this.statusValidasi = validasi; }
-    public void setWaktuValidasi(String waktu) { this.waktuValidasi = waktu; }
+    public String getJudulMateri()                  { return judulMateri; }
+    public void setValidasi(String validasi)        { this.statusValidasi = validasi; }
+    public void setWaktuValidasi(String waktu)      { this.waktuValidasi = waktu; }
+    public int getIdMateri()                        { return idMateri; }
+    public String getCategoryKls()                  { return categoryKls; }
+    public String getIsiMateri()                    { return isiMateri; }
+    public String getStatusValidasi()               { return statusValidasi; }
+    public String getWaktuValidasi()                { return waktuValidasi; }
+    public Instruktur getPembuat()                  { return pembuat; }
+    public void setJudulMateri(String judulMateri)  { this.judulMateri = judulMateri; }
+    public void setIsiMateri(String isiMateri)      { this.isiMateri = isiMateri; }
+    public void setCategoryKls(String categoryKls)  { this.categoryKls = categoryKls; }
 
     public void tampilkanInfo() {
         System.out.println("Detail Materi");
