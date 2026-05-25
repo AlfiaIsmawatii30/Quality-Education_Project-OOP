@@ -26,4 +26,8 @@ public class Siswa extends User implements Notifiable {
         System.out.println("Tingkat   : " + tingkat);
         System.out.println("--------------------");
     }
+
+    public String getIdSiswa() { return idSiswa; }
+    public String getTingkat() { return tingkat; }
+    public void setTingkat(String tingkat) { this.tingkat = tingkat; }
 }
