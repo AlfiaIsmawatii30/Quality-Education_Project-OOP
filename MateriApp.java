@@ -6,14 +6,15 @@ import java.awt.event.MouseEvent;
 
 public class MateriApp extends JFrame {
 
-    // Tempat mendaftarkan komponen aplikasi
-    private JComboBox<String> cbAktor; // Kotak pilihan Instruktur/Admin/Siswa
+    private JComboBox<String> cbAktor; 
     private JTextField txtIdMateri, txtJudul, txtKategori, txtIsi;
     private JButton btnAdd, btnUpdate, btnDelete, btnValidasi, btnBroadcast, btnClear;
     private JTable table;
     private DefaultTableModel tableModel;
 
-    // Constructor: Fondasi utama rumah aplikasi
+
+    public String getRole() { return "System"; }
+
     public MateriApp() {
         setTitle("SISTEM PEMBELAJARAN DIGITAL");
         setSize(750, 650);
@@ -21,35 +22,75 @@ public class MateriApp extends JFrame {
         setLayout(new BorderLayout());
         setLocationRelativeTo(null);
         
-        // Memanggil fungsi penataan tampilan
         setupTampilan();
         
-        setVisible(true); // Memunculkan jendela ke layar
+        setVisible(true); 
     }
 
-    // Fungsi untuk menata tampilan komponen (Ini isi yang tadi belum ada!)
     private void setupTampilan() {
-        // 1. Membuat Panel Bagian Atas (NORTH) untuk pilihan Aktor
         JPanel topPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 15, 10));
-        topPanel.setBackground(new Color(102, 51, 153)); // Ungu khas dosenmu
+        topPanel.setBackground(new Color(102, 51, 153)); 
         
         JLabel lblAktor = new JLabel("Pilih Peran Anda (Login Sebagai): ");
-        lblAktor.setForeground(Color.WHITE); // Biar tulisan warna putih
+        lblAktor.setForeground(Color.WHITE); 
         lblAktor.setFont(new Font("Segoe UI", Font.BOLD, 12));
         
-        // Membuat JComboBox / Dropdown Pilihan
         String[] listAktor = {"Instruktur", "Admin", "Siswa (SWA01/SWA02)"};
         cbAktor = new JComboBox<>(listAktor);
         
-        // Masukkan label dan dropdown ke panel atas
         topPanel.add(lblAktor);
         topPanel.add(cbAktor);
-        
-        // Pasang panel atas ini ke posisi UTARA (BorderLayout.NORTH)
         add(topPanel, BorderLayout.NORTH);
+
+        JPanel centerPanel = new JPanel(new BorderLayout());
+        
+        JPanel formPanel = new JPanel(new GridBagLayout());
+        formPanel.setBorder(BorderFactory.createTitledBorder("Form Input Data Materi"));
+        GridBagConstraints gbc = new GridBagConstraints();
+        gbc.insets = new Insets(8, 8, 8, 8); 
+        gbc.fill = GridBagConstraints.HORIZONTAL;
+
+        gbc.gridx = 0; gbc.gridy = 0;
+        formPanel.add(new JLabel("ID Materi (Angka):"), gbc);
+        gbc.gridx = 1; txtIdMateri = new JTextField(10);
+        formPanel.add(txtIdMateri, gbc);
+
+        gbc.gridx = 0; gbc.gridy = 1;
+        formPanel.add(new JLabel("Judul Materi:"), gbc);
+        gbc.gridx = 1; txtJudul = new JTextField(25);
+        formPanel.add(txtJudul, gbc);
+
+        gbc.gridx = 0; gbc.gridy = 2;
+        formPanel.add(new JLabel("Kategori Kelas:"), gbc);
+        gbc.gridx = 1; txtKategori = new JTextField(25);
+        formPanel.add(txtKategori, gbc);
+
+        gbc.gridx = 0; gbc.gridy = 3;
+        formPanel.add(new JLabel("Isi Materi:"), gbc);
+        gbc.gridx = 1; txtIsi = new JTextField(25);
+        formPanel.add(txtIsi, gbc);
+
+        JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 10, 10));
+        btnAdd       = new JButton("Add");
+        btnUpdate    = new JButton("Update");
+        btnDelete    = new JButton("Delete");
+        btnValidasi  = new JButton("Validasi Admin");
+        btnBroadcast = new JButton("Broadcast Notif");
+        btnClear     = new JButton("Clear Form");
+
+        buttonPanel.add(btnAdd);
+        buttonPanel.add(btnUpdate);
+        buttonPanel.add(btnDelete);
+        buttonPanel.add(btnValidasi);
+        buttonPanel.add(btnBroadcast);
+        buttonPanel.add(btnClear);
+
+        centerPanel.add(formPanel, BorderLayout.CENTER);
+        centerPanel.add(buttonPanel, BorderLayout.SOUTH);
+        
+        add(centerPanel, BorderLayout.CENTER);
     }
 
-    // Jalur sakelar utama untuk me-run aplikasi
     public static void main(String[] args) {
         SwingUtilities.invokeLater(() -> new MateriApp());
     }
