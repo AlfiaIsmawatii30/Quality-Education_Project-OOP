@@ -16,4 +16,4 @@
 CLASS DIAGRAM :
 (lihat gambar di bawah)
 
-Gambar : ./class-diagram.png
+![Gambar](./class-diagram.png)
