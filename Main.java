@@ -1,56 +1,59 @@
 public class Main {
-    public static void broadcastPesan(Notifiable penerima, String judul, String pesan) {
-        System.out.println(">> Mengirim ke: " + penerima.getRole());
-        penerima.kirimNotifikasi(judul, pesan);
-    }
-
     public static void main(String[] args) {
 
-        Instruktur ins1   = new Instruktur("pak_bayu", "pass123", "INS-001");
-        Admin      adm1   = new Admin("admin1", "admin123", "ADM-01");
-        Siswa      siswa1 = new Siswa("budi_s", "budi99", "SIS-001", "menengah");
-        Siswa      siswa2 = new Siswa("citra_r", "citra22", "SIS-002", "pemula");
+        System.out.println("========================================");
+        System.out.println("   QUALITY EDUCATION — OOP DEMO");
+        System.out.println("========================================\n");
 
-        Materi m1 = new Materi(
-            101,
-            "Object-Oriented Analysis",
-            "Software Design",
-            "Mempelajari Transformasi ERD ke Class Diagram",
-            ins1
-        );
+        // Buat objek (POLYMORPHISM: semua adalah User)
+        Admin      admin      = new Admin("admin01", "pass123", "ADM-001");
+        Instruktur instruktur = new Instruktur("alfia", "instr123", "INS-001");
+        Siswa      siswa      = new Siswa("siswa01", "siswa123", "STD-001", "10A");
 
-        System.out.println("[ PROSES LOGIN ]");
-        adm1.login();
+        // --- LOGIN (method dari User abstract) ---
+        System.out.println("--- Login ---");
+        admin.login();
+        instruktur.login();
+        siswa.login();
+        System.out.println();
 
-        System.out.println("\n[ STATUS AWAL ]");
-        m1.tampilkanInfo();
+        // --- TAMPILKAN PROFIL ---
+        System.out.println("--- Profil ---");
+        admin.tampilkanProfil();
+        instruktur.tampilkanProfil();
+        siswa.tampilkanProfil();
 
-        System.out.println("[ PROSES VALIDASI OLEH ADMIN ]");
-        adm1.validasiMateri(m1);
+        // --- BUAT MATERI ---
+        System.out.println("--- Buat Materi ---");
+        Materi materi = new Materi(1, "Pengenalan OOP", "10A",
+                "OOP adalah paradigma pemrograman berbasis objek.", instruktur);
+        materi.tampilkanInfo();
 
-        System.out.println("\n[ STATUS AKHIR ]");
-        m1.tampilkanInfo();
+        // --- VALIDASI MATERI oleh Admin ---
+        System.out.println("--- Validasi Materi ---");
+        admin.validasiMateri(materi);
+        materi.tampilkanInfo();
 
-        System.out.println("[ DATA PROFIL ]");
-        ins1.tampilkanProfil();
-        adm1.tampilkanProfil();
+        // --- NOTIFIKASI (POLYMORPHISM via interface Notifiable) ---
+        System.out.println("--- Notifikasi ---");
+        Notifiable[] penerima = { admin, instruktur, siswa };
+        for (Notifiable n : penerima) {
+            n.kirimNotifikasi("Materi Baru", "Materi OOP sudah tersedia.");
+        }
+        System.out.println();
 
-        broadcastPesan(adm1,
-            "Laporan Harian",
-            "Ada 3 materi baru menunggu validasi.");
+        // --- CEK ROLE (POLYMORPHISM: getRole() override di tiap subclass) ---
+        System.out.println("--- Role Masing-masing User ---");
+        User[] users = { admin, instruktur, siswa };
+        for (User u : users) {
+            System.out.println(u.getUsername() + " -> " + u.getRole());
+        }
+        System.out.println();
 
-        broadcastPesan(ins1,
-            "Materi Disetujui",
-            "Materi 'OOP Analysis' telah disetujui.");
-
-        broadcastPesan(siswa1,
-            "Quiz Baru Tersedia",
-            "Quiz 'OOP Lanjutan' dibuka, selesaikan sebelum 30 April.");
-
-        broadcastPesan(siswa2,
-            "Selamat Datang",
-            "Akun Anda aktif. Mulai belajar sekarang!");
-
-        System.out.println("\n Semua demo selesai!");
+        // --- VERIFIKASI PASSWORD ---
+        System.out.println("--- Verifikasi Password ---");
+        System.out.println("Admin verifikasi 'pass123'  : " + admin.verifyPassword("pass123"));
+        System.out.println("Admin verifikasi 'salah'    : " + admin.verifyPassword("salah"));
+        System.out.println("Siswa verifikasi 'siswa123' : " + siswa.verifyPassword("siswa123"));
     }
 }
