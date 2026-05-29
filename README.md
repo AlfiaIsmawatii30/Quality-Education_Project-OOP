@@ -39,7 +39,7 @@ Project ini dibangun sebagai Tugas Akhir Mata Kuliah Pemrograman Berorientasi Ob
 
 **Role 2 : Data & Logic Engineer**
 - Mengimplementasikan `ArrayList` untuk menyimpan data Admin, Instruktur, Siswa, dan Materi di memori
-- Membuat `DataManager.java` berisi logika CRUD:
+- Membuat `MateriController.java` berisi logika CRUD:
   - `tambahData()` — menambahkan objek ke list
   - `lihatSemuaData()` — menampilkan seluruh isi list
   - `cariData()` — mencari objek berdasarkan ID
@@ -48,8 +48,8 @@ Project ini dibangun sebagai Tugas Akhir Mata Kuliah Pemrograman Berorientasi Ob
 - Memastikan operasi list berjalan benar tanpa error
 
 **Role 4 : Menulis JUnit Test**
-- Membuat `QualityEducationTest.java`
-- Menulis test case untuk setiap method CRUD di `DataManager`
+- Membuat `MateriControllerTest.java`
+- Menulis test case untuk setiap method CRUD di `MateriController`
 - Menulis test case untuk memverifikasi inheritance dan polymorphism
 - Memastikan semua test lolos sebelum merge ke `main`
 
@@ -154,7 +154,7 @@ Pilih: _
 javac -cp .:junit-platform-console-standalone.jar *.java
 
 # 2. Jalankan test
-java -cp .:junit-platform-console-standalone.jar org.junit.runner.JUnitCore QualityEducationTest
+java -cp .:junit-platform-console-standalone.jar org.junit.runner.JUnitCore MateriControllerTest
 ```
 
 Contoh output jika semua test lolos:
@@ -180,8 +180,8 @@ Quality-Education_Project-OOP/
 ├── Siswa.java                   ← Subclass Siswa extends User (Role 1 - Alfia)
 ├── Materi.java                  ← Class entitas materi (Role 1 - Alfia)
 │
-├── DataManager.java             ← ArrayList + logika CRUD (Role 2 - Ayu)
-├── QualityEducationTest.java    ← JUnit Test (Role 4 - Ayu)
+├── MateriController.java        ← ArrayList + logika CRUD (Role 2 - Ayu)
+├── MateriControllerTest.java    ← JUnit Test (Role 4 - Ayu)
 │
 ├── Main.java                    ← Menu + Scanner + try-catch (Role 3 - Sekar)
 │
