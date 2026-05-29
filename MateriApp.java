@@ -3,6 +3,8 @@ import javax.swing.table.DefaultTableModel;
 import java.awt.*;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
+import java.util.List;
 
 public class MateriApp extends JFrame {
 
@@ -19,10 +21,17 @@ public class MateriApp extends JFrame {
     private String currentUserRole = "";
     private String currentUsername = "";
     
-    // VARIABEL: Menyimpan log aktivitas materi terakhir untuk tombol broadcast
     private String statusMateriTerakhir = "Belum ada aktivitas materi terbaru pada sesi ini.";
 
+    // --- KABEL KONEKSI: Deklarasi Controller milik Teman ---
+    private AuthController authController;
+    private NotifikasiController notifikasiController;
+
     public MateriApp() {
+        // Inisialisasi controller teman agar siap digunakan
+        this.authController = new AuthController();
+        this.notifikasiController = new NotifikasiController();
+        
         mulaiSesiAplikasi();
     }
 
@@ -55,16 +64,13 @@ public class MateriApp extends JFrame {
     private void showLoginDialog() {
         JTextField txtLoginUser = new JTextField(15);
         JPasswordField txtLoginPass = new JPasswordField(15);
-        String[] listAktor = {"Instruktur", "Admin", "Siswa"};
-        JComboBox<String> cbLoginAktor = new JComboBox<>(listAktor);
 
-        JPanel loginPanel = new JPanel(new GridLayout(3, 2, 10, 10));
+        // JComboBox dihapus karena hak akses/role didapatkan otomatis dari AuthController temanmu!
+        JPanel loginPanel = new JPanel(new GridLayout(2, 2, 10, 10));
         loginPanel.add(new JLabel("Username:"));
         loginPanel.add(txtLoginUser);
-        loginPanel.add(new JLabel("ID / Password:"));
+        loginPanel.add(new JLabel("Password:"));
         loginPanel.add(txtLoginPass);
-        loginPanel.add(new JLabel("Masuk Sebagai:"));
-        loginPanel.add(cbLoginAktor);
 
         int result = JOptionPane.showConfirmDialog(null, loginPanel, 
                 "SILAHKAN LOGIN", JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE);
@@ -74,12 +80,29 @@ public class MateriApp extends JFrame {
             String pass = new String(txtLoginPass.getPassword()).trim();
             
             if (user.isEmpty() || pass.isEmpty()) {
-                JOptionPane.showMessageDialog(null, "Username dan ID/Password tidak boleh kosong!", "Login Gagal", JOptionPane.ERROR_MESSAGE);
+                JOptionPane.showMessageDialog(null, "Username dan Password tidak boleh kosong!", "Login Gagal", JOptionPane.ERROR_MESSAGE);
                 showLoginDialog(); 
             } else {
-                currentUsername = user;
-                currentUserRole = cbLoginAktor.getSelectedItem().toString();
-                JOptionPane.showMessageDialog(null, "[PROSES LOGIN]\n" + currentUsername + " berhasil login sebagai " + currentUserRole + ".", "Login Sukses", JOptionPane.INFORMATION_MESSAGE);
+                // --- CONNECT: Memanggil proses login dari AuthController teman ---
+                User userLogged = authController.login(user, pass);
+                
+                if (userLogged != null) {
+                    currentUsername = userLogged.getUsername();
+                    
+                    // Deteksi role secara dinamis berdasarkan class object-nya
+                    if (userLogged instanceof Admin) {
+                        currentUserRole = "Admin";
+                    } else if (userLogged instanceof Instruktur) {
+                        currentUserRole = "Instruktur";
+                    } else if (userLogged instanceof Siswa) {
+                        currentUserRole = "Siswa";
+                    }
+                    
+                    JOptionPane.showMessageDialog(null, "[PROSES LOGIN]\n" + currentUsername + " berhasil login sebagai " + currentUserRole + ".", "Login Sukses", JOptionPane.INFORMATION_MESSAGE);
+                } else {
+                    JOptionPane.showMessageDialog(null, "Username atau password salah!", "Login Gagal", JOptionPane.ERROR_MESSAGE);
+                    showLoginDialog(); // Ulangi login jika gagal
+                }
             }
         } else {
             currentUserRole = "";
@@ -192,6 +215,9 @@ public class MateriApp extends JFrame {
                     "Konfirmasi Keluar Sesi", JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE);
             
             if (konfirmasi == JOptionPane.YES_OPTION) {
+                // --- CONNECT: Memanggil logout() dari AuthController teman ---
+                authController.logout();
+                
                 JOptionPane.showMessageDialog(this, "Sesi " + currentUsername + " berakhir. Kembali ke halaman login.", "Logout Berhasil", JOptionPane.INFORMATION_MESSAGE);
                 currentUserRole = "";
                 currentUsername = "";
@@ -309,26 +335,34 @@ public class MateriApp extends JFrame {
             }
         });
 
+        // --- CONNECT: Tombol Broadcast Terhubung dengan NotifikasiController teman ---
         btnBroadcast.addActionListener(e -> {
             String pengirimInisial = "";
             if (currentUserRole.equals("Instruktur")) pengirimInisial = "[INS]";
             else if (currentUserRole.equals("Admin")) pengirimInisial = "[ADM]";
             else if (currentUserRole.equals("Siswa")) pengirimInisial = "[SWA]";
 
-            String teksNotifUtama = pengirimInisial + " " + currentUsername + " " + statusMateriTerakhir;
+            String judulNotif = "Update Aktivitas Kuliah";
+            String pesanNotif = pengirimInisial + " " + currentUsername + " " + statusMateriTerakhir;
 
-            String msgAdmin  = ">> Mengirim ke: [ADM] Admin Sistem\n" +
-                               "[NOTIF → ADM] Laporan: " + teksNotifUtama;
-                               
-            String msgInstruktur = ">> Mengirim ke: [INS] Instruktur Utama\n" +
-                                   "[NOTIF → INS] Update Sesi: " + teksNotifUtama;
-                                   
-            String msgSiswa  = ">> Mengirim ke: [SWA] Siswa Kelas\n" +
-                               "[NOTIF → SWA] Info Akademik: " + teksNotifUtama;
+            // Kumpulkan semua user dari AuthController yang bertindak sebagai Notifiable
+            List<Notifiable> daftarPenerima = new ArrayList<>();
+            for (User u : authController.getUserList()) {
+                if (u instanceof Notifiable) {
+                    daftarPenerima.add((Notifiable) u);
+                }
+            }
 
-            JOptionPane.showMessageDialog(this, msgAdmin, "Notifikasi Broadcast", JOptionPane.INFORMATION_MESSAGE);
-            JOptionPane.showMessageDialog(this, msgInstruktur, "Notifikasi Broadcast", JOptionPane.INFORMATION_MESSAGE);
-            JOptionPane.showMessageDialog(this, msgSiswa, "Notifikasi Broadcast", JOptionPane.INFORMATION_MESSAGE);
+            // Panggil fungsi broadcast milik teman
+            notifikasiController.broadcast(daftarPenerima, judulNotif, pesanNotif);
+
+            // Tampilkan dialog pop-up konfirmasi ke layar monitor GUI
+            String riwayatLog = ">> Mengirim Broadcast via NotifikasiController:\n";
+            for (String log : notifikasiController.getRiwayatNotif()) {
+                riwayatLog += log + "\n";
+            }
+            
+            JOptionPane.showMessageDialog(this, riwayatLog, "Notifikasi Broadcast Sukses", JOptionPane.INFORMATION_MESSAGE);
         });
 
         btnClear.addActionListener(e -> clearFields());
