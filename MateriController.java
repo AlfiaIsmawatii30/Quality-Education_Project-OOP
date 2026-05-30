@@ -66,7 +66,7 @@ public class MateriController {
         }
     }
 
-    // 2. VALIDASI MATERI & NOTIFIKASI KE INSTRUKTUR + SEMUA SISWA
+    // 2. ADMIN VALIDASI -> KIRIM NOTIF KE INSTRUKTUR PEMBUAT & SEMUA SISWA
     public void validasiMateri(Admin admin, int idMateri, NotifikasiController notifController, AuthController authController) {
         Materi materi = getMateriById(idMateri);
         
@@ -74,17 +74,17 @@ public class MateriController {
             System.out.println("Materi tidak ditemukan.");
             return;
         }
-
+        
         admin.validasiMateri(materi);
         
-        // Kirim notifikasi ke Instruktur pembuat materi
+        // Kirim ke Instruktur pembuat materi 
         if (materi.getPembuat() != null) {
             notifController.kirimNotifikasi(materi.getPembuat(), 
                 "Materi Disetujui", 
-                "Materi '" + materi.getJudulMateri() + "' Anda telah divalidasi dan diterbitkan oleh Admin.");
+                "Materi '" + materi.getJudulMateri() + "' Anda telah divalidasi dan diterbitkan oleh Admin " + admin.getUsername() + ".");
         }
         
-        // Kirim notifikasi otomatis ke seluruh akun Siswa di dalam sistem
+        // Kirim ke Semua Siswa
         String judulSiswa = "Materi Kuliah Baru Tersedia!";
         String pesanSiswa = "Materi '" + materi.getJudulMateri() + "' (" + materi.getCategoryKls() + ") telah terbit. Silahkan dipelajari!";
         

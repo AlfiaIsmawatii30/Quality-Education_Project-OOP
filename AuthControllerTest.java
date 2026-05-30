@@ -32,7 +32,7 @@ public class AuthControllerTest {
 
     @Test
     void testIsLoggedInSetelahLogin() {
-        auth.login("pak_bayu", "pass123");
+        auth.login("instruktur", "pass123");
         assertTrue(auth.isLoggedIn());
     }
 
@@ -45,8 +45,8 @@ public class AuthControllerTest {
 
     @Test
     void testGetUserLoginSetelahLogin() {
-        auth.login("pak_bayu", "pass123");
+        auth.login("instruktur", "pass123");
         assertNotNull(auth.getUserLogin());
-        assertEquals("pak_bayu", auth.getUserLogin().getUsername());
+        assertEquals("instruktur", auth.getUserLogin().getUsername());
     }
 }

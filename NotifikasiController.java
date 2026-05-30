@@ -18,21 +18,6 @@ public class NotifikasiController {
         }
     }
 
-    public void broadcastDariAuthController(AuthController authController, String judul, String pesan) {
-        List<Notifiable> penerimaNotif = new ArrayList<>();
-        
-        // Ambil semua user dari AuthController
-        for (User user : authController.getUserList()) {
-            // Cek apakah user tersebut mengimplementasikan interface Notifiable
-            if (user instanceof Notifiable) {
-                penerimaNotif.add((Notifiable) user);
-            }
-        }
-    
-    // Panggil fungsi broadcast yang sudah ada
-    broadcast(penerimaNotif, judul, pesan);
-}
-
     // Lihat riwayat notifikasi
     public void viewRiwayat() {
         if (riwayatNotif.isEmpty()) {
