@@ -20,17 +20,16 @@ public class MateriApp extends JFrame {
     
     private String currentUserRole = "";
     private String currentUsername = "";
-    
     private String statusMateriTerakhir = "Belum ada aktivitas materi terbaru pada sesi ini.";
 
-    // --- KABEL KONEKSI: Deklarasi Controller milik Teman ---
     private AuthController authController;
     private NotifikasiController notifikasiController;
-
+    private MateriController materiController; 
+    private User loggedInUserObject = null;   
     public MateriApp() {
-        // Inisialisasi controller teman agar siap digunakan
         this.authController = new AuthController();
         this.notifikasiController = new NotifikasiController();
+        this.materiController = new MateriController();
         
         mulaiSesiAplikasi();
     }
@@ -54,7 +53,8 @@ public class MateriApp extends JFrame {
         setupLogikaRobustness();
         aturHakAksesKomponen();
         
-        tableModel.addRow(new Object[]{101, "Object-Oriented Analysis", "Software Design", "Mempelajari Transformasi ERD ke Class Diagram", "Belum divalidasi", "-"});
+        // Load data awal jika ada materi default di controller
+        refreshTableData();
         
         revalidate();
         repaint();
@@ -65,7 +65,6 @@ public class MateriApp extends JFrame {
         JTextField txtLoginUser = new JTextField(15);
         JPasswordField txtLoginPass = new JPasswordField(15);
 
-        // JComboBox dihapus karena hak akses/role didapatkan otomatis dari AuthController temanmu!
         JPanel loginPanel = new JPanel(new GridLayout(2, 2, 10, 10));
         loginPanel.add(new JLabel("Username:"));
         loginPanel.add(txtLoginUser);
@@ -83,25 +82,23 @@ public class MateriApp extends JFrame {
                 JOptionPane.showMessageDialog(null, "Username dan Password tidak boleh kosong!", "Login Gagal", JOptionPane.ERROR_MESSAGE);
                 showLoginDialog(); 
             } else {
-                // --- CONNECT: Memanggil proses login dari AuthController teman ---
-                User userLogged = authController.login(user, pass);
+                loggedInUserObject = authController.login(user, pass);
                 
-                if (userLogged != null) {
-                    currentUsername = userLogged.getUsername();
+                if (loggedInUserObject != null) {
+                    currentUsername = loggedInUserObject.getUsername();
                     
-                    // Deteksi role secara dinamis berdasarkan class object-nya
-                    if (userLogged instanceof Admin) {
+                    if (loggedInUserObject instanceof Admin) {
                         currentUserRole = "Admin";
-                    } else if (userLogged instanceof Instruktur) {
+                    } else if (loggedInUserObject instanceof Instruktur) {
                         currentUserRole = "Instruktur";
-                    } else if (userLogged instanceof Siswa) {
+                    } else if (loggedInUserObject instanceof Siswa) {
                         currentUserRole = "Siswa";
                     }
                     
                     JOptionPane.showMessageDialog(null, "[PROSES LOGIN]\n" + currentUsername + " berhasil login sebagai " + currentUserRole + ".", "Login Sukses", JOptionPane.INFORMATION_MESSAGE);
                 } else {
                     JOptionPane.showMessageDialog(null, "Username atau password salah!", "Login Gagal", JOptionPane.ERROR_MESSAGE);
-                    showLoginDialog(); // Ulangi login jika gagal
+                    showLoginDialog(); 
                 }
             }
         } else {
@@ -144,7 +141,6 @@ public class MateriApp extends JFrame {
         btnLogout.setForeground(Color.WHITE);
         btnLogout.setFont(new Font("Segoe UI", Font.BOLD, 11));
         btnLogout.setFocusPainted(false);
-        
         btnLogout.setContentAreaFilled(false);
         btnLogout.setOpaque(true);
         
@@ -161,8 +157,9 @@ public class MateriApp extends JFrame {
         gbc.fill = GridBagConstraints.HORIZONTAL;
 
         gbc.gridx = 0; gbc.gridy = 0;
-        formPanel.add(new JLabel("ID Materi (Angka):"), gbc);
+        formPanel.add(new JLabel("ID Materi (Otomatis):"), gbc);
         gbc.gridx = 1; txtIdMateri = new JTextField(10);
+        txtIdMateri.setEditable(false); // ID diatur otomatis oleh MateriController (nextId++)
         formPanel.add(txtIdMateri, gbc);
 
         gbc.gridx = 0; gbc.gridy = 1;
@@ -208,6 +205,24 @@ public class MateriApp extends JFrame {
         add(scrollPane, BorderLayout.SOUTH);
     }
 
+    private void refreshTableData() {
+        tableModel.setRowCount(0); 
+        
+        for (Materi m : materiController.getMateriList()) {
+            String status = "Tersedia"; 
+            String waktu = "-";
+            
+            tableModel.addRow(new Object[]{
+                m.getIdMateri(), 
+                m.getJudulMateri(), 
+                m.getCategoryKls(), 
+                m.getIsiMateri(), 
+                status, 
+                waktu
+            });
+        }
+    }
+
     private void setupLogikaRobustness() {
         btnLogout.addActionListener(e -> {
             int konfirmasi = JOptionPane.showConfirmDialog(this, 
@@ -215,12 +230,11 @@ public class MateriApp extends JFrame {
                     "Konfirmasi Keluar Sesi", JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE);
             
             if (konfirmasi == JOptionPane.YES_OPTION) {
-                // --- CONNECT: Memanggil logout() dari AuthController teman ---
                 authController.logout();
-                
                 JOptionPane.showMessageDialog(this, "Sesi " + currentUsername + " berakhir. Kembali ke halaman login.", "Logout Berhasil", JOptionPane.INFORMATION_MESSAGE);
                 currentUserRole = "";
                 currentUsername = "";
+                loggedInUserObject = null;
                 setVisible(false);
                 mulaiSesiAplikasi();
             }
@@ -228,25 +242,23 @@ public class MateriApp extends JFrame {
 
         btnAdd.addActionListener(e -> {
             try {
-                String idText = txtIdMateri.getText().trim();
                 String judul = txtJudul.getText().trim();
                 String kategori = txtKategori.getText().trim();
                 String isi = txtIsi.getText().trim();
 
-                if (idText.isEmpty() || judul.isEmpty() || kategori.isEmpty() || isi.isEmpty()) {
+                if (judul.isEmpty() || kategori.isEmpty() || isi.isEmpty()) {
                     throw new IllegalArgumentException("Semua kolom form materi wajib diisi!");
                 }
 
-                int idMateri = Integer.parseInt(idText);
-                tableModel.addRow(new Object[]{idMateri, judul, kategori, isi, "Belum divalidasi", "-"});
+                materiController.addMateri(judul, kategori, isi, (Instruktur) loggedInUserObject, notifikasiController, authController);
                 
                 statusMateriTerakhir = "menambahkan materi baru '" + judul + "'. Menunggu Validasi.";
+            
+                refreshTableData();
                 
-                JOptionPane.showMessageDialog(this, "Materi Berhasil Ditambahkan!", "Sukses", JOptionPane.INFORMATION_MESSAGE);
+                JOptionPane.showMessageDialog(this, "Materi Berhasil Ditambahkan!\nNotifikasi otomatis dikirim ke Admin.", "Sukses", JOptionPane.INFORMATION_MESSAGE);
                 clearFields();
 
-            } catch (NumberFormatException ex) {
-                JOptionPane.showMessageDialog(this, "ID Materi harus berupa angka integer!", "Eror Format ID", JOptionPane.ERROR_MESSAGE);
             } catch (IllegalArgumentException ex) {
                 JOptionPane.showMessageDialog(this, ex.getMessage(), "Peringatan", JOptionPane.WARNING_MESSAGE);
             }
@@ -259,7 +271,6 @@ public class MateriApp extends JFrame {
                 txtJudul.setText(tableModel.getValueAt(selectedRow, 1).toString());
                 txtKategori.setText(tableModel.getValueAt(selectedRow, 2).toString());
                 txtIsi.setText(tableModel.getValueAt(selectedRow, 3).toString());
-                txtIdMateri.setEditable(false);
             }
         });
 
@@ -270,21 +281,18 @@ public class MateriApp extends JFrame {
                     throw new IllegalStateException("Pilih salah satu baris materi pada tabel terlebih dahulu!");
                 }
                 
+                int id = Integer.parseInt(tableModel.getValueAt(selectedRow, 0).toString());
                 String judul = txtJudul.getText().trim();
-                String kategori = txtKategori.getText().trim();
                 String isi = txtIsi.getText().trim();
 
-                if (judul.isEmpty() || kategori.isEmpty() || isi.isEmpty()) {
-                    throw new IllegalArgumentException("Kolom tidak boleh kosong saat update!");
+                if (judul.isEmpty() || isi.isEmpty()) {
+                    throw new IllegalArgumentException("Kolom judul dan isi tidak boleh kosong saat update!");
                 }
-
-                tableModel.setValueAt(judul, selectedRow, 1);
-                tableModel.setValueAt(kategori, selectedRow, 2);
-                tableModel.setValueAt(isi, selectedRow, 3);
-                
+                materiController.updateMateri(id, judul, isi);
                 statusMateriTerakhir = "mengubah detail isi pada materi '" + judul + "'.";
                 
-                JOptionPane.showMessageDialog(this, "Data materi berhasil diperbarui!", "Sukses", JOptionPane.INFORMATION_MESSAGE);
+                refreshTableData();
+                JOptionPane.showMessageDialog(this, "Data materi berhasil diperbarui di sistem!", "Sukses", JOptionPane.INFORMATION_MESSAGE);
                 clearFields();
             } catch (Exception ex) {
                 JOptionPane.showMessageDialog(this, ex.getMessage(), "Peringatan Update", JOptionPane.WARNING_MESSAGE);
@@ -298,15 +306,16 @@ public class MateriApp extends JFrame {
                     throw new IllegalStateException("Pilih data pada tabel yang ingin dihapus!");
                 }
 
+                int id = Integer.parseInt(tableModel.getValueAt(selectedRow, 0).toString());
                 String judulMateriDihapus = tableModel.getValueAt(selectedRow, 1).toString();
 
                 int konfirmasi = JOptionPane.showConfirmDialog(this, "Apakah Anda yakin ingin menghapus materi ini?", "Konfirmasi Hapus", JOptionPane.YES_NO_OPTION);
                 if (konfirmasi == JOptionPane.YES_OPTION) {
-                    tableModel.removeRow(selectedRow);
-                    
+                    materiController.deleteMateri(id);
                     statusMateriTerakhir = "menghapus materi '" + judulMateriDihapus + "' dari perkuliahan.";
                     
-                    JOptionPane.showMessageDialog(this, "Materi berhasil dihapus!", "Sukses", JOptionPane.INFORMATION_MESSAGE);
+                    refreshTableData();
+                    JOptionPane.showMessageDialog(this, "Materi berhasil dihapus dari sistem!", "Sukses", JOptionPane.INFORMATION_MESSAGE);
                     clearFields();
                 }
             } catch (IllegalStateException ex) {
@@ -321,31 +330,36 @@ public class MateriApp extends JFrame {
                     throw new IllegalStateException("Pilih materi di tabel yang ingin divalidasi!");
                 }
 
+                int idMateri = Integer.parseInt(tableModel.getValueAt(selectedRow, 0).toString());
                 String judul = tableModel.getValueAt(selectedRow, 1).toString();
-                DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
-                tableModel.setValueAt("Telah divalidasi oleh " + currentUsername, selectedRow, 4);
-                tableModel.setValueAt(LocalDateTime.now().format(dtf), selectedRow, 5);
+                
+                materiController.validasiMateri((Admin) loggedInUserObject, idMateri, notifikasiController, authController);
 
                 statusMateriTerakhir = "memvalidasi penerbitan materi '" + judul + "'.";
 
-                JOptionPane.showMessageDialog(this, "Sistem: Materi '" + judul + "' berhasil divalidasi oleh " + currentUsername + ".", "Validasi Sukses", JOptionPane.INFORMATION_MESSAGE);
+                refreshTableData();
+                
+                StringBuilder riwayatLog = new StringBuilder("Sistem: Validasi Sukses!\nNotifikasi otomatis dikirim ke pembuat & seluruh siswa:\n");
+                for (String log : notifikasiController.getRiwayatNotif()) {
+                    riwayatLog.append(log).append("\n");
+                }
+                
+                JOptionPane.showMessageDialog(this, riwayatLog.toString(), "Validasi & Notifikasi Sukses", JOptionPane.INFORMATION_MESSAGE);
                 table.clearSelection();
             } catch (IllegalStateException ex) {
                 JOptionPane.showMessageDialog(this, ex.getMessage(), "Peringatan Validasi", JOptionPane.WARNING_MESSAGE);
             }
         });
 
-        // --- CONNECT: Tombol Broadcast Terhubung dengan NotifikasiController teman ---
         btnBroadcast.addActionListener(e -> {
             String pengirimInisial = "";
             if (currentUserRole.equals("Instruktur")) pengirimInisial = "[INS]";
             else if (currentUserRole.equals("Admin")) pengirimInisial = "[ADM]";
             else if (currentUserRole.equals("Siswa")) pengirimInisial = "[SWA]";
 
-            String judulNotif = "Update Aktivitas Kuliah";
+            String judulNotif = "Broadcast Manual Aktivitas";
             String pesanNotif = pengirimInisial + " " + currentUsername + " " + statusMateriTerakhir;
 
-            // Kumpulkan semua user dari AuthController yang bertindak sebagai Notifiable
             List<Notifiable> daftarPenerima = new ArrayList<>();
             for (User u : authController.getUserList()) {
                 if (u instanceof Notifiable) {
@@ -353,16 +367,14 @@ public class MateriApp extends JFrame {
                 }
             }
 
-            // Panggil fungsi broadcast milik teman
             notifikasiController.broadcast(daftarPenerima, judulNotif, pesanNotif);
 
-            // Tampilkan dialog pop-up konfirmasi ke layar monitor GUI
-            String riwayatLog = ">> Mengirim Broadcast via NotifikasiController:\n";
+            StringBuilder riwayatLog = new StringBuilder(">> Mengirim Broadcast Manual via NotifikasiController:\n");
             for (String log : notifikasiController.getRiwayatNotif()) {
-                riwayatLog += log + "\n";
+                riwayatLog.append(log).append("\n");
             }
             
-            JOptionPane.showMessageDialog(this, riwayatLog, "Notifikasi Broadcast Sukses", JOptionPane.INFORMATION_MESSAGE);
+            JOptionPane.showMessageDialog(this, riwayatLog.toString(), "Notifikasi Broadcast Sukses", JOptionPane.INFORMATION_MESSAGE);
         });
 
         btnClear.addActionListener(e -> clearFields());
@@ -373,7 +385,6 @@ public class MateriApp extends JFrame {
         txtJudul.setText("");
         txtKategori.setText("");
         txtIsi.setText("");
-        txtIdMateri.setEditable(true);
         table.clearSelection();
     }
 
@@ -382,7 +393,7 @@ public class MateriApp extends JFrame {
             try {
                 UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
             } catch (Exception e) {
-                // Abaikan jika eror
+               
             }
             new MateriApp();
         });

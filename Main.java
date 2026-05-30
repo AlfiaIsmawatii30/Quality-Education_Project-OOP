@@ -1,3 +1,5 @@
+import javax.swing.SwingUtilities;
+
 public class Main {
     public static void broadcastPesan(Notifiable penerima, String judul, String pesan) {
         System.out.println(">> Mengirim ke: " + penerima.getRole());
@@ -5,7 +7,6 @@ public class Main {
     }
 
     public static void main(String[] args) {
-
         Instruktur ins1   = new Instruktur("pak_bayu", "pass123", "INS-001");
         Admin      adm1   = new Admin("admin1", "admin123", "ADM-01");
         Siswa      siswa1 = new Siswa("budi_s", "budi99", "SIS-001", "menengah");
@@ -52,5 +53,12 @@ public class Main {
             "Akun Anda aktif. Mulai belajar sekarang!");
 
         System.out.println("\n Semua demo selesai!");
+        System.out.println("----------------------------------------------");
+        System.out.println("MEMBUKA ANTARMUKA GUI (MATERI APP)...");
+        System.out.println("----------------------------------------------");
+
+        SwingUtilities.invokeLater(() -> {
+            new MateriApp();
+        });
     }
 }
