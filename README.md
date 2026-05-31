@@ -4,8 +4,6 @@ Quality Education adalah aplikasi manajemen pembelajaran berbasis Java yang berj
 
 Project ini dibangun sebagai Tugas Akhir Mata Kuliah Pemrograman Berorientasi Objek (PBO) dengan menerapkan konsep OOP secara menyeluruh, meliputi Abstract Class, Inheritance, Interface, Encapsulation, dan Polymorphism.
 
----
-
 ## Anggota Kelompok
 
 | Nama | NIM | Role |
@@ -33,13 +31,12 @@ Project ini dibangun sebagai Tugas Akhir Mata Kuliah Pemrograman Berorientasi Ob
 - Menjaga branch `main` tetap bersih dan stabil
 - Membuat README.md teknis project
 
----
 
 ### Indah Ayu Astuti — 254311002
 
 **Role 2 : Data & Logic Engineer**
 - Mengimplementasikan `ArrayList` untuk menyimpan data Admin, Instruktur, Siswa, dan Materi di memori
-- Membuat `DataManager.java` berisi logika CRUD:
+- Membuat `MateriController.java` berisi logika CRUD:
   - `tambahData()` — menambahkan objek ke list
   - `lihatSemuaData()` — menampilkan seluruh isi list
   - `cariData()` — mencari objek berdasarkan ID
@@ -48,12 +45,11 @@ Project ini dibangun sebagai Tugas Akhir Mata Kuliah Pemrograman Berorientasi Ob
 - Memastikan operasi list berjalan benar tanpa error
 
 **Role 4 : Menulis JUnit Test**
-- Membuat `QualityEducationTest.java`
-- Menulis test case untuk setiap method CRUD di `DataManager`
+- Membuat `MateriControllerTest.java`
+- Menulis test case untuk setiap method CRUD di `MateriController`
 - Menulis test case untuk memverifikasi inheritance dan polymorphism
 - Memastikan semua test lolos sebelum merge ke `main`
 
----
 
 ### Sekar Purwita Asri — 254311008
 
@@ -70,7 +66,6 @@ Project ini dibangun sebagai Tugas Akhir Mata Kuliah Pemrograman Berorientasi Ob
 - Merapikan format kode agar konsisten di semua file
 - Menyiapkan bahan presentasi atau demo project
 
----
 
 ## Prasyarat
 
@@ -90,7 +85,6 @@ javac -version
 git --version
 ```
 
----
 
 ## Instalasi & Setup
 
@@ -107,7 +101,6 @@ javac *.java
 
 Jika tidak ada pesan error setelah `javac *.java`, berarti kompilasi berhasil.
 
----
 
 ## Cara Menjalankan Program
 
@@ -154,7 +147,7 @@ Pilih: _
 javac -cp .:junit-platform-console-standalone.jar *.java
 
 # 2. Jalankan test
-java -cp .:junit-platform-console-standalone.jar org.junit.runner.JUnitCore QualityEducationTest
+java -cp .:junit-platform-console-standalone.jar org.junit.runner.JUnitCore MateriControllerTest
 ```
 
 Contoh output jika semua test lolos:
@@ -166,7 +159,6 @@ Time: 0.045
 OK (7 tests)
 ```
 
----
 
 ## Struktur Project
 
@@ -180,8 +172,8 @@ Quality-Education_Project-OOP/
 ├── Siswa.java                   ← Subclass Siswa extends User (Role 1 - Alfia)
 ├── Materi.java                  ← Class entitas materi (Role 1 - Alfia)
 │
-├── DataManager.java             ← ArrayList + logika CRUD (Role 2 - Ayu)
-├── QualityEducationTest.java    ← JUnit Test (Role 4 - Ayu)
+├── MateriController.java        ← ArrayList + logika CRUD (Role 2 - Ayu)
+├── MateriControllerTest.java    ← JUnit Test (Role 4 - Ayu)
 │
 ├── Main.java                    ← Menu + Scanner + try-catch (Role 3 - Sekar)
 │
@@ -201,13 +193,11 @@ Quality-Education_Project-OOP/
 | Encapsulation | Semua field `private`, akses hanya lewat getter dan setter |
 | Polymorphism | `getRole()` di-override berbeda di tiap subclass, `login()` memanggil `getRole()` secara polimorfik |
 
----
 
 ## Class Diagram
 
 ![Class Diagram](class-diagram.png)
 
----
 
 ## Refactoring yang Dilakukan
 
@@ -219,7 +209,6 @@ Quality-Education_Project-OOP/
 | Encapsulation Fix | Field `public String username` | Diubah ke `private` + getter/setter |
 | Interface Segregation | `getRole()` dobel di interface dan abstract class | `getRole()` hanya di abstract `User`, interface hanya berisi `kirimNotifikasi()` |
 
----
 
 ## Branch Strategy
 
@@ -231,7 +220,6 @@ Quality-Education_Project-OOP/
 | `feature/role-2` | Ayu | DataManager ArrayList + CRUD + JUnit Test |
 | `feature/role-3` | Sekar | Main.java + Scanner + try-catch |
 
----
 
 ## Contributing
 
@@ -265,7 +253,6 @@ docs:      update dokumentasi
 test:      tambah atau perbaiki test
 ```
 
----
 
 *Tugas Akhir Mata Kuliah Pemrograman Berorientasi Objek*  
 *Program Studi Teknologi Rekayasa Perangkat Lunak — Politeknik Negeri Madiun 2026*
