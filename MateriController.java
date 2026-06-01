@@ -1,12 +1,36 @@
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Kelas pengontrol (Controller) yang mengatur manajemen data materi pembelajaran.
+ * Kelas ini menangani siklus hidup operasi CRUD (Create, Read, Update, Delete) materi,
+ * serta menjembatani alur proses validasi publikasi materi antara {@link Admin},
+ * {@link Instruktur}, dan {@link Siswa} yang terintegrasi dengan sistem notifikasi.
+ * * @author Kelompok 4
+ * @version 1.0
+ */
 public class MateriController {
 
+    /**
+     * Struktur data dinamis berbentuk List untuk menampung seluruh objek Materi di memori.
+     */
     private List<Materi> materiList = new ArrayList<>();
+
+    /**
+     * Generator ID otomatis bertipe integer untuk memberikan nomor urut unik pada setiap materi baru.
+     */
     private int nextId = 1;
 
-    // CREATE MATERI & NOTIFIKASI OTOMATIS KE ADMIN
+    /**
+     * Membuat dan menambahkan objek materi baru ke dalam sistem, sekaligus mengirimkan 
+     * notifikasi pengajuan secara otomatis kepada seluruh pengguna dengan hak akses Admin.
+     * * @param judul judul utama konten materi.
+     * @param kategori klasifikasi target tingkatan kelas.
+     * @param isi narasi atau penjabaran materi.
+     * @param pembuat objek {@link Instruktur} selaku penyusun materi.
+     * @param notifController kontroler perantara pengiriman pesan notifikasi.
+     * @param authController kontroler pencari daftar pengguna aktif dalam sistem.
+     */
     public void addMateri(String judul, String kategori, String isi, Instruktur pembuat, NotifikasiController notifController, AuthController authController) {
         Materi materi = new Materi(nextId++, judul, kategori, isi, pembuat);
         materiList.add(materi);
@@ -23,10 +47,17 @@ public class MateriController {
         }
     }
 
-    // READ ALL
+    /**
+     * Mengambil seluruh kumpulan data materi yang terdaftar di dalam sistem.
+     * * @return kumpulan data materi dalam bentuk objek {@link List}.
+     */
     public List<Materi> getMateriList() { return materiList; }
 
-    // READ by ID
+    /**
+     * Melakukan pencarian objek materi berdasarkan kecocokan ID unik pengenal.
+     * * @param id nomor unik ID materi yang dicari.
+     * @return objek {@link Materi} jika ditemukan, atau {@code null} jika ID tidak cocok.
+     */
     public Materi getMateriById(int id) {
         for (Materi m : materiList) {
             if (m.getIdMateri() == id) {
@@ -36,7 +67,12 @@ public class MateriController {
         return null;
     }
 
-    // UPDATE
+    /**
+     * Memperbarui informasi konten (judul dan teks isi) pada materi tertentu berdasarkan pencarian ID.
+     * * @param id kode pengenal materi yang akan diubah.
+     * @param judulBaru nama judul baru pengganti data lama.
+     * @param isiBaru teks isi materi baru pengganti data lama.
+     */
     public void updateMateri(int id, String judulBaru, String isiBaru) {
         for (Materi m : materiList) {
             if (m.getIdMateri() == id) {
@@ -49,7 +85,10 @@ public class MateriController {
         System.out.println("Materi tidak ditemukan.");
     }
 
-    // DELETE
+    /**
+     * Menghapus objek materi secara permanen dari daftar repositori sistem berdasarkan kecocokan ID.
+     * * @param id kode pengenal materi yang ingin dihapus.
+     */
     public void deleteMateri(int id) {
         Materi materiDihapus = null;
         for (Materi m : materiList) {
@@ -66,7 +105,15 @@ public class MateriController {
         }
     }
 
-    // 2. VALIDASI MATERI & NOTIFIKASI KE INSTRUKTUR + SEMUA SISWA
+    /**
+     * Memproses persetujuan (validasi) penerbitan materi oleh Admin, memperbarui status 
+     * internal materi, serta mendistribusikan notifikasi otomatis ke Instruktur pembuat 
+     * beserta seluruh akun Siswa yang terdaftar di sistem.
+     * * @param admin objek {@link Admin} yang mengeksekusi validasi materi.
+     * @param idMateri kode unik identifikasi materi yang akan disetujui.
+     * @param notifController kontroler media distribusi pengiriman pesan.
+     * @param authController kontroler penyedia data seluruh pengguna untuk filter peran.
+     */
     public void validasiMateri(Admin admin, int idMateri, NotifikasiController notifController, AuthController authController) {
         Materi materi = getMateriById(idMateri);
         
@@ -95,5 +142,9 @@ public class MateriController {
         }
     }
 
+    /**
+     * Mengambil jumlah total materi yang saat ini tersimpan di dalam memori list sistem.
+     * * @return nilai integer representasi ukuran jumlah total data materi.
+     */
     public int getSize() { return materiList.size(); }
 }

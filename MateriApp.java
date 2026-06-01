@@ -4,27 +4,66 @@ import java.awt.*;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Antarmuka Grafis Utama (GUI Dashboard) untuk Sistem Pembelajaran Digital.
+ * Kelas ini mengelola penataan komponen Java Swing, membatasi hak akses elemen form 
+ * berdasarkan peran pengguna (Admin, Instruktur, Siswa), serta menangani seluruh 
+ * aksi interaksi tombol (CRUD materi, Validasi, dan Broadcast Notifikasi).
+ * * @author Kelompok 4
+ * @version 1.0
+ */
 public class MateriApp extends JFrame {
 
+    /** Komponen input teks untuk data materi pembelajaran. */
     private JTextField txtIdMateri, txtJudul, txtKategori, txtIsi;
+    
+    /** Tombol aksi manipulasi data materi dan kontrol notifikasi sistem. */
     private JButton btnAdd, btnUpdate, btnDelete, btnValidasi, btnBroadcast, btnClear;
+    
+    /** Tombol untuk mengakhiri sesi masuk pengguna saat ini. */
     private JButton btnLogout; 
+    
+    /** Tabel visual untuk menampilkan daftar seluruh data materi perkuliahan. */
     private JTable table;
+    
+    /** Model data tabel yang memfasilitasi penambahan dan penghapusan baris data. */
     private DefaultTableModel tableModel;
     
+    /** Panel kontainer untuk menampung elemen-elemen form input data. */
     private JPanel formPanel;
+    
+    /** Panel bagian atas (header) untuk navigasi informasi user. */
     private JPanel topPanel; 
+    
+    /** Label teks penanda informasi nama pengguna dan hak akses yang sedang aktif. */
     private JLabel lblDashboard; 
     
+    /** String penyimpan peran (role) dari pengguna yang berhasil login. */
     private String currentUserRole = "";
+    
+    /** String penyimpan nama unik (username) pengguna aktif. */
     private String currentUsername = "";
+    
+    /** Catatan teks aktivitas materi terakhir untuk kebutuhan konten pesan broadcast. */
     private String statusMateriTerakhir = "Belum ada aktivitas materi terbaru pada sesi ini.";
 
+    /** Kontroler untuk memanajemen sesi otentikasi login/logout. */
     private AuthController authController;
+    
+    /** Kontroler untuk mengelola riwayat pencatatan dan distribusi notifikasi. */
     private NotifikasiController notifikasiController;
+    
+    /** Kontroler inti penanganan operasi bisnis data materi pembelajaran. */
     private MateriController materiController; 
+    
+    /** Objek pengguna aktif hasil konfirmasi otentikasi sistem. */
     private User loggedInUserObject = null;   
 
+    /**
+     * Konstruktor utama kelas MateriApp.
+     * Menginisialisasi objek-objek kontroler bisnis (Auth, Notifikasi, Materi) 
+     * serta langsung memicu dimulainya sesi aplikasi.
+     */
     public MateriApp() {
         this.authController = new AuthController();
         this.notifikasiController = new NotifikasiController();
@@ -33,6 +72,11 @@ public class MateriApp extends JFrame {
         mulaiSesiAplikasi();
     }
 
+    /**
+     * Mengatur alur siklus hidup inisialisasi aplikasi.
+     * Menampilkan dialog login terlebih dahulu, melakukan validasi penutupan aplikasi 
+     * jika login dibatalkan, serta mengonfigurasi layout komponen visual jika login sukses.
+     */
     private void mulaiSesiAplikasi() {
         showLoginDialog();
         
@@ -59,6 +103,11 @@ public class MateriApp extends JFrame {
         setVisible(true); 
     }
 
+    /**
+     * Membuka jendela dialog interaktif (JOptionPane) khusus untuk proses otentikasi.
+     * Menangani validasi string kosong, pemanggilan fungsi masuk kontroler, 
+     * hingga penentuan tipe instansiasi objek (Admin, Instruktur, atau Siswa).
+     */
     private void showLoginDialog() {
         JTextField txtLoginUser = new JTextField(15);
         JPasswordField txtLoginPass = new JPasswordField(15);
@@ -104,6 +153,11 @@ public class MateriApp extends JFrame {
         }
     }
 
+    /**
+     * Menerapkan aturan Role-Based Access Control (RBAC) pada elemen antarmuka.
+     * Menyembunyikan form input serta tombol manipulasi jika peran pengguna adalah Admin/Siswa, 
+     * atau menonaktifkan fungsi tombol validasi jika pengguna adalah Instruktur.
+     */
     private void aturHakAksesKomponen() {
         if (currentUserRole.equals("Instruktur")) {
             btnValidasi.setVisible(false);
@@ -125,6 +179,11 @@ public class MateriApp extends JFrame {
         }
     }
 
+    /**
+     * Membangun, menyusun, dan mewarnai seluruh struktur tata letak (layout) visual 
+     * komponen Swing seperti header panel, form GridBagLayout, tombol-tombol aksi, 
+     * hingga tabel penampung data di bagian bawah frame.
+     */
     private void setupTampilan() {
         topPanel = new JPanel(new BorderLayout()); 
         topPanel.setBackground(new Color(102, 51, 153)); 
@@ -203,11 +262,15 @@ public class MateriApp extends JFrame {
         add(scrollPane, BorderLayout.SOUTH);
     }
 
+    /**
+     * Memperbarui item baris data pada komponen tabel GUI.
+     * Membersihkan seluruh data lama dan menarik ulang kumpulan objek data 
+     * dari `materiController` untuk dimasukkan ke dalam model tabel.
+     */
     private void refreshTableData() {
         tableModel.setRowCount(0); 
         
         for (Materi m : materiController.getMateriList()) {
-            // DIKEMBALIKAN KE STATIS AGAR TIDAK MEMANGGIL METHOD YANG UNDEFINED
             String status = "Tersedia"; 
             String waktu = "-";
             
@@ -218,10 +281,16 @@ public class MateriApp extends JFrame {
                 m.getIsiMateri(), 
                 status, 
                 waktu
+            // Perbaikan logika strings statis agar selaras dengan versi robust
             });
         }
     }
 
+    /**
+     * Menghubungkan seluruh komponen tombol dengan Event Listener (ActionListener).
+     * Berisi logika pertahanan sistem (Robustness) menggunakan blok try-catch untuk 
+     * menangkap runtime exception, pengondisian seleksi tabel, hingga konfirmasi dialog keluar sesi.
+     */
     private void setupLogikaRobustness() {
         btnLogout.addActionListener(e -> {
             int konfirmasi = JOptionPane.showConfirmDialog(this, 
@@ -379,6 +448,10 @@ public class MateriApp extends JFrame {
         btnClear.addActionListener(e -> clearFields());
     }
 
+    /**
+     * Mengosongkan isian teks pada seluruh form komponen input (id, judul, kategori, isi) 
+     * serta membersihkan fokus seleksi aktif pada baris tabel.
+     */
     private void clearFields() {
         txtIdMateri.setText("");
         txtJudul.setText("");
@@ -387,12 +460,17 @@ public class MateriApp extends JFrame {
         table.clearSelection();
     }
 
+    /**
+     * Main method internal khusus peluncuran thread GUI MateriApp.
+     * Mengonfigurasi Look and Feel agar tampilan jendela selaras dengan tema sistem operasi komputer.
+     * * @param args argumen baris perintah eksekusi (opsional).
+     */
     public static void main(String[] args) {
         SwingUtilities.invokeLater(() -> {
             try {
                 UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
             } catch (Exception e) {
-               
+               // Mengabaikan error Look and Feel agar sistem tetap meluncur default
             }
             new MateriApp();
         });
