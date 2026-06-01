@@ -1,8 +1,6 @@
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
 import java.awt.*;
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -26,6 +24,7 @@ public class MateriApp extends JFrame {
     private NotifikasiController notifikasiController;
     private MateriController materiController; 
     private User loggedInUserObject = null;   
+
     public MateriApp() {
         this.authController = new AuthController();
         this.notifikasiController = new NotifikasiController();
@@ -53,7 +52,6 @@ public class MateriApp extends JFrame {
         setupLogikaRobustness();
         aturHakAksesKomponen();
         
-        // Load data awal jika ada materi default di controller
         refreshTableData();
         
         revalidate();
@@ -159,7 +157,7 @@ public class MateriApp extends JFrame {
         gbc.gridx = 0; gbc.gridy = 0;
         formPanel.add(new JLabel("ID Materi (Otomatis):"), gbc);
         gbc.gridx = 1; txtIdMateri = new JTextField(10);
-        txtIdMateri.setEditable(false); // ID diatur otomatis oleh MateriController (nextId++)
+        txtIdMateri.setEditable(false); 
         formPanel.add(txtIdMateri, gbc);
 
         gbc.gridx = 0; gbc.gridy = 1;
@@ -209,6 +207,7 @@ public class MateriApp extends JFrame {
         tableModel.setRowCount(0); 
         
         for (Materi m : materiController.getMateriList()) {
+            // DIKEMBALIKAN KE STATIS AGAR TIDAK MEMANGGIL METHOD YANG UNDEFINED
             String status = "Tersedia"; 
             String waktu = "-";
             
