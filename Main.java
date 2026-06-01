@@ -1,6 +1,23 @@
 import javax.swing.SwingUtilities;
 
+/**
+ * Kelas utama (Entry Point) untuk menjalankan demonstrasi sistem pembelajaran digital.
+ * Kelas ini mendemonstrasikan implementasi pilar-pilar Object-Oriented Programming (OOP)
+ * seperti Pewarisan (Inheritance), Enkapsulasi (Encapsulation), Polimorfisme (Polymorphism),
+ * serta Abstraksi menggunakan kelas dan interface. Di akhir demo, kelas ini memicu 
+ * peluncuran antarmuka GUI utama.
+ * * @author Kelompok 4
+ * @version 1.0
+ */
 public class Main {
+    
+    /**
+     * Method utama yang dieksekusi pertama kali saat program dijalankan.
+     * Berisi skenario pembuatan objek pengguna (Admin, Instruktur, Siswa), simulasi login,
+     * validasi materi, penanganan polimorfisme notifikasi, serta inisialisasi
+     * aplikasi berbasis antarmuka grafis (GUI) MateriApp.
+     * * @param args argumen baris perintah yang dilewatkan saat eksekusi program (opsional).
+     */
     public static void main(String[] args) {
 
         System.out.println("========================================");
