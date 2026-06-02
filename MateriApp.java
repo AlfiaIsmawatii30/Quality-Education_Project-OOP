@@ -9,7 +9,7 @@ import java.util.List;
  * Kelas ini mengelola penataan komponen Java Swing, membatasi hak akses elemen form 
  * berdasarkan peran pengguna (Admin, Instruktur, Siswa), serta menangani seluruh 
  * aksi interaksi tombol (CRUD materi, Validasi, dan Broadcast Notifikasi).
- * * @author Kelompok 4
+ * @author Kelompok 4
  * @version 1.1
  */
 public class MateriApp extends JFrame {
@@ -433,14 +433,12 @@ public class MateriApp extends JFrame {
             }
         });
 
+        /**
+         * PERBAIKAN: Menghubungkan fungsi klik broadcast dengan metode filter role yang baru.
+         */
         btnBroadcast.addActionListener(e -> {
-            String pengirimInisial = "";
-            if (currentUserRole.equals("Instruktur")) pengirimInisial = "[INS]";
-            else if (currentUserRole.equals("Admin")) pengirimInisial = "[ADM]";
-            else if (currentUserRole.equals("Siswa")) pengirimInisial = "[SWA]";
-
             String judulNotif = "Broadcast Manual Aktivitas";
-            String pesanNotif = pengirimInisial + " " + currentUsername + " " + statusMateriTerakhir;
+            String pesanNotif = "[" + currentUserRole.toUpperCase() + "] " + currentUsername + " " + statusMateriTerakhir;
 
             List<Notifiable> daftarPenerima = new ArrayList<>();
             if (authController.getUserList() != null) {
@@ -451,9 +449,10 @@ public class MateriApp extends JFrame {
                 }
             }
 
-            notifikasiController.broadcast(daftarPenerima, judulNotif, pesanNotif);
+            // Memanggil broadcastSesuaiRole agar pesan terfilter bersih sesuai akun login saat ini
+            notifikasiController.broadcastSesuaiRole(daftarPenerima, judulNotif, pesanNotif, currentUserRole);
 
-            StringBuilder riwayatLog = new StringBuilder(">> Mengirim Broadcast Manual via NotifikasiController:\n");
+            StringBuilder riwayatLog = new StringBuilder(">> Mengirim Broadcast Manual Sesuai Peran (" + currentUserRole + "):\n");
             for (String log : notifikasiController.getRiwayatNotif()) {
                 riwayatLog.append(log).append("\n");
             }

@@ -11,14 +11,26 @@ public class NotifikasiController {
         riwayatNotif.add("[" + penerima.getRole() + "] " + judul + ": " + pesan);
     }
 
-    // Broadcast ke semua penerima
+    /**
+     * PERBAIKAN: Broadcast Pintar Berdasarkan Peran (Role)
+     * Hanya mengirimkan notifikasi jika peran pengguna cocok dengan target yang diinginkan.
+     */
+    public void broadcastSesuaiRole(List<Notifiable> daftarPenerima, String judul, String pesan, String targetRole) {
+        for (Notifiable n : daftarPenerima) {
+            if (n.getRole().equalsIgnoreCase(targetRole)) {
+                kirimNotifikasi(n, judul, pesan);
+            }
+        }
+    }
+
+    // Broadcast ke semua penerima (Tetap dipertahankan jika dibutuhkan kelas lain)
     public void broadcast(List<Notifiable> penerima, String judul, String pesan) {
         for (Notifiable n : penerima) {
             kirimNotifikasi(n, judul, pesan);
         }
     }
 
-    // Lihat riwayat notifikasi
+    // Lihat riwayat notifikasi di konsol
     public void viewRiwayat() {
         if (riwayatNotif.isEmpty()) {
             System.out.println("Belum ada notifikasi.");
@@ -29,7 +41,7 @@ public class NotifikasiController {
         }
     }
 
-    // Dipakai JUnit Test
+    // Dipakai JUnit Test & GUI Dashboard
     public List<String> getRiwayatNotif() { return riwayatNotif; }
     public int getSize()                  { return riwayatNotif.size(); }
 }
