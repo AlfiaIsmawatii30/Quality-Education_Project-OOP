@@ -7,7 +7,14 @@ public class AuthController {
     private User userLogin = null;
 
     public AuthController() {
-        // Data default langsung menyimpan password di dalam objek masing-masing
+        // ====================================================================
+        // DATA AKUN UTAMA (Disamakan dengan MateriApp)
+        // ====================================================================
+        userList.add(new Admin("ADM1", "ADM1", "ADM-002"));
+        userList.add(new Instruktur("INS1", "INS1", "INS-002"));
+        userList.add(new Siswa("SWA1", "SWA1", "STD-002", "10A"));
+
+        // Data default cadangan/lama agar demo CLI di Main.java tetap jalan
         userList.add(new Admin("admin1", "admin123", "ADM-01"));
         userList.add(new Instruktur("instruktur", "pass123", "INS-001"));
         userList.add(new Siswa("siswa1", "siswa123", "SIS-001", "menengah"));

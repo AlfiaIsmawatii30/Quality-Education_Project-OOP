@@ -1,3 +1,6 @@
+import javax.swing.SwingUtilities;
+import javax.swing.UIManager;
+
 public class Main {
     public static void main(String[] args) {
 
@@ -6,9 +9,9 @@ public class Main {
         System.out.println("========================================\n");
 
         // Buat objek (POLYMORPHISM: semua adalah User)
-        Admin      admin      = new Admin("admin01", "pass123", "ADM-001");
-        Instruktur instruktur = new Instruktur("alfia", "instr123", "INS-001");
-        Siswa      siswa      = new Siswa("siswa01", "siswa123", "STD-001", "10A");
+        Admin      admin      = new Admin("ADM1", "ADM1", "ADM-002");
+        Instruktur instruktur = new Instruktur("INS1", "INS1", "INS-002");
+        Siswa      siswa      = new Siswa("SWA1", "SWA1", "STD-002", "10A");
 
         // --- LOGIN (method dari User abstract) ---
         System.out.println("--- Login ---");
@@ -21,7 +24,8 @@ public class Main {
         System.out.println("--- Profil ---");
         admin.tampilkanProfil();
         instruktur.tampilkanProfil();
-        siswa.tampilkanProfil();
+        siswa.tampilkanProfil(); // DIBAIKI DISINI: diubah dari siswaProfil() menjadi tampilkanProfil()
+        System.out.println();
 
         // --- BUAT MATERI ---
         System.out.println("--- Buat Materi ---");
@@ -52,8 +56,24 @@ public class Main {
 
         // --- VERIFIKASI PASSWORD ---
         System.out.println("--- Verifikasi Password ---");
-        System.out.println("Admin verifikasi 'pass123'  : " + admin.verifyPassword("pass123"));
+        System.out.println("Admin verifikasi 'ADM1'     : " + admin.verifyPassword("ADM1"));
         System.out.println("Admin verifikasi 'salah'    : " + admin.verifyPassword("salah"));
-        System.out.println("Siswa verifikasi 'siswa123' : " + siswa.verifyPassword("siswa123"));
+        System.out.println("Siswa verifikasi 'SWA1'     : " + siswa.verifyPassword("SWA1"));
+        
+        // ====================================================================
+        // TAMBAHAN: Memicu Peluncuran Antarmuka GUI (MateriApp) Setelah Demo CLI
+        // ====================================================================
+        System.out.println("\n--- Membuka Jendela GUI Aplikasi... ---");
+        
+        SwingUtilities.invokeLater(() -> {
+            try {
+                // Menyamakan tema tampilan visual dengan sistem operasi laptop (Windows/Mac/Linux)
+                UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
+            } catch (Exception e) {
+                // Mengabaikan error Look and Feel agar sistem tetap meluncur default
+            }
+            // Memanggil antarmuka utama Sistem Manajemen Distribusi Materi Digital
+            new MateriApp();
+        });
     }
 }
