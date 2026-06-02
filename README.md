@@ -47,7 +47,6 @@ Project ini dibangun sebagai Tugas Akhir Mata Kuliah Pemrograman Berorientasi Ob
 **Role 4 : Menulis JUnit Test**
 - Membuat `MateriControllerTest.java`
 - Menulis test case untuk setiap method CRUD di `MateriController`
-- Menulis test case untuk memverifikasi inheritance dan polymorphism
 - Memastikan semua test lolos sebelum merge ke `main`
 
 
