@@ -1,15 +1,19 @@
-pubic class MateriPremium extends Materi {
-    /// encapsulation
+public class MateriPremium extends Materi {
+
+    // Encapsulation
     private String tingkatKesulitan;
     private double hargaAkses;
-    /// constructor
-    public MateriPremium(int idMateri, Stirng judulMateri, String categoryKls, String isiMateri, Instruktur pembuat, String tingkatKesulitan, double hargaAkses) {
+
+    // Constructor
+    public MateriPremium(int idMateri, String judulMateri, String categoryKls, String isiMateri,
+                         Instruktur pembuat, String tingkatKesulitan, double hargaAkses) {
 
         super(idMateri, judulMateri, categoryKls, isiMateri, pembuat);
         this.tingkatKesulitan = tingkatKesulitan;
-        this.hargaAkses = hargaAkses
+        this.hargaAkses = hargaAkses;
     }
-    /// getter dan setter
+
+    // Getter dan Setter
     public String getTingkatKesulitan() {
         return tingkatKesulitan;
     }
@@ -25,26 +29,28 @@ pubic class MateriPremium extends Materi {
     public void setHargaAkses(double hargaAkses) {
         this.hargaAkses = hargaAkses;
     }
-    /// Override tamilkanInfo
+
+    // Override tampilkanInfo
     @Override
     public void tampilkanInfo() {
-        system.out.println("=== Detail Materi PREMIUM ===");
-        system.out.println("MATERI PREMIUM");
-        system.out.println("ID Materi : " + getIdMateri());
-        system.out.println("Judul :" + getJudulMateri());
-        system.out.println("Kategori : " + getCategoryKls());
-        system.out.println("Isi : " + getIsiMateri());
-        system.out.println("Tingkat Kesulitan : " + tingkatKesulitan);
-        system.out.println("Harga Akses : Rp %.2f%n", hargaAkses);
-        system.out.println("Status Validasi : " + getStatusValidasi());
-        system.out.println("Waktu Validasi : " + getWaktuValidasi());
+        System.out.println("=== Detail Materi PREMIUM ===");
+        System.out.println("MATERI PREMIUM");
+        System.out.println("ID Materi         : " + getIdMateri());
+        System.out.println("Judul             : " + getJudulMateri());
+        System.out.println("Kategori          : " + getCategoryKls());
+        System.out.println("Isi               : " + getIsiMateri());
+        System.out.println("Tingkat Kesulitan : " + tingkatKesulitan);
+        System.out.printf("Harga Akses       : Rp %.2f%n", hargaAkses);
+        System.out.println("Status Validasi   : " + getStatusValidasi());
+        System.out.println("Waktu Validasi    : " + getWaktuValidasi());
         if (getPembuat() != null) {
-            system.out.println("Dibuat Oleh : " + getPembuat().getUsername()
+            System.out.println("Dibuat Oleh       : " + getPembuat().getUsername()
                     + " (" + getPembuat().getIdInstruktur() + ")");
         }
     }
 
     public boolean isSulit() {
-        return "Sulit".equalsignoreCase(tingkatKesulitan);
+        return "Sulit".equalsIgnoreCase(tingkatKesulitan);
     }
-}
+
+} // akhir class MateriPremium
