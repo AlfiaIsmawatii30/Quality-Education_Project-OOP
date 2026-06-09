@@ -1,17 +1,10 @@
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
+
 import java.awt.*;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * Antarmuka Grafis Utama (GUI Dashboard) untuk Sistem Pembelajaran Digital.
- * Kelas ini mengelola penataan komponen Java Swing, membatasi hak akses elemen form 
- * berdasarkan peran pengguna (Admin, Instruktur, Siswa), serta menangani seluruh 
- * aksi interaksi tombol (CRUD materi, Validasi, dan Broadcast Notifikasi).
- * * @author Kelompok 4
- * @version 1.0
- */
 public class MateriApp extends JFrame {
 
     /** Komponen input teks untuk data materi pembelajaran. */
@@ -19,6 +12,9 @@ public class MateriApp extends JFrame {
     
     /** Tombol aksi manipulasi data materi dan kontrol notifikasi sistem. */
     private JButton btnAdd, btnUpdate, btnDelete, btnValidasi, btnBroadcast, btnClear;
+    
+    /** Tombol fitur baru versi 2.0: tambah materi premium dan filter tampilan. */
+    private JButton btnAddPremium, btnFilterPremium;
     
     /** Tombol untuk mengakhiri sesi masuk pengguna saat ini. */
     private JButton btnLogout; 
@@ -168,6 +164,7 @@ public class MateriApp extends JFrame {
             btnUpdate.setVisible(false);
             btnDelete.setVisible(false);
             btnClear.setVisible(false);
+            btnAddPremium.setVisible(false);
         } 
         else if (currentUserRole.equals("Siswa")) {
             formPanel.setVisible(false);
@@ -176,6 +173,7 @@ public class MateriApp extends JFrame {
             btnDelete.setVisible(false);
             btnValidasi.setVisible(false);
             btnClear.setVisible(false);
+            btnAddPremium.setVisible(false);
         }
     }
 
@@ -235,12 +233,22 @@ public class MateriApp extends JFrame {
         formPanel.add(txtIsi, gbc);
 
         JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 10, 10));
-        btnAdd       = new JButton("Add");
-        btnUpdate    = new JButton("Update");
-        btnDelete    = new JButton("Delete");
-        btnValidasi  = new JButton("Validasi Admin");
-        btnBroadcast = new JButton("Broadcast Notif");
-        btnClear     = new JButton("Clear Form");
+        btnAdd          = new JButton("Add");
+        btnUpdate       = new JButton("Update");
+        btnDelete       = new JButton("Delete");
+        btnValidasi     = new JButton("Validasi Admin");
+        btnBroadcast    = new JButton("Broadcast Notif");
+        btnClear        = new JButton("Clear Form");
+        btnAddPremium   = new JButton("★ Add Premium");
+        btnFilterPremium = new JButton("Filter Premium");
+
+        btnAddPremium.setBackground(new Color(255, 215, 0));
+        btnAddPremium.setForeground(new Color(80, 50, 0));
+        btnAddPremium.setFont(new Font("Segoe UI", Font.BOLD, 11));
+
+        btnFilterPremium.setBackground(new Color(70, 130, 180));
+        btnFilterPremium.setForeground(Color.WHITE);
+        btnFilterPremium.setFont(new Font("Segoe UI", Font.BOLD, 11));
 
         buttonPanel.add(btnAdd);
         buttonPanel.add(btnUpdate);
@@ -248,6 +256,8 @@ public class MateriApp extends JFrame {
         buttonPanel.add(btnValidasi);
         buttonPanel.add(btnBroadcast);
         buttonPanel.add(btnClear);
+        buttonPanel.add(btnAddPremium);
+        buttonPanel.add(btnFilterPremium);
 
         centerPanel.add(formPanel, BorderLayout.CENTER);
         centerPanel.add(buttonPanel, BorderLayout.SOUTH);
@@ -446,25 +456,111 @@ public class MateriApp extends JFrame {
         });
 
         btnClear.addActionListener(e -> clearFields());
+
+        // ===== FITUR BARU VERSI 2.0: ADD MATERI PREMIUM =====
+        btnAddPremium.addActionListener(e -> {
+            // Dialog form khusus untuk input data materi premium
+            JTextField txtJudulP   = new JTextField(20);
+            JTextField txtKategoriP = new JTextField(20);
+            JTextField txtIsiP     = new JTextField(20);
+            JComboBox<String> cmbKesulitan = new JComboBox<>(
+                    new String[]{"Mudah", "Menengah", "Sulit", "Sangat Sulit"});
+            JTextField txtSks      = new JTextField(5);
+            JTextField txtBatas    = new JTextField(20);
+            txtBatas.setText("2026-12-31 23:59");
+
+            JPanel panelPremium = new JPanel(new GridLayout(6, 2, 8, 8));
+            panelPremium.add(new JLabel("Judul Materi:")); panelPremium.add(txtJudulP);
+            panelPremium.add(new JLabel("Kategori Kelas:")); panelPremium.add(txtKategoriP);
+            panelPremium.add(new JLabel("Isi Materi:")); panelPremium.add(txtIsiP);
+            panelPremium.add(new JLabel("Tingkat Kesulitan:")); panelPremium.add(cmbKesulitan);
+            panelPremium.add(new JLabel("Jumlah SKS (> 0):")); panelPremium.add(txtSks);
+            panelPremium.add(new JLabel("Batas Akses (yyyy-MM-dd HH:mm):")); panelPremium.add(txtBatas);
+
+            int result = JOptionPane.showConfirmDialog(this, panelPremium,
+                    "★ Tambah Materi Premium", JOptionPane.OK_CANCEL_OPTION);
+
+            if (result == JOptionPane.OK_OPTION) {
+                try {
+                    String judul    = txtJudulP.getText().trim();
+                    String kategori = txtKategoriP.getText().trim();
+                    String isi      = txtIsiP.getText().trim();
+                    String kesulitan = (String) cmbKesulitan.getSelectedItem();
+                    String batas    = txtBatas.getText().trim();
+
+                    // Validasi SKS menggunakan Custom Exception
+                    if (txtSks.getText().trim().isEmpty()) {
+                        throw new InputTidakValidException("Jumlah SKS tidak boleh kosong!");
+                    }
+                    int sks;
+                    try {
+                        sks = Integer.parseInt(txtSks.getText().trim());
+                    } catch (NumberFormatException nfe) {
+                        throw new InputTidakValidException(
+                                "Format SKS tidak valid! Masukkan angka bulat positif, bukan: '"
+                                + txtSks.getText().trim() + "'");
+                    }
+
+                    materiController.addMateriPremium(judul, kategori, isi,
+                            (Instruktur) loggedInUserObject,
+                            kesulitan, sks, batas,
+                            notifikasiController, authController);
+
+                    statusMateriTerakhir = "menambahkan materi PREMIUM '★ " + judul + "'. Menunggu Validasi.";
+                    refreshTableData();
+                    JOptionPane.showMessageDialog(this,
+                            "★ Materi Premium Berhasil Ditambahkan!\nNotifikasi [PREMIUM] dikirim ke Admin.",
+                            "Sukses Tambah Premium", JOptionPane.INFORMATION_MESSAGE);
+
+                } catch (InputTidakValidException ex) {
+                    JOptionPane.showMessageDialog(this,
+                            "Input Tidak Valid:\n" + ex.getMessage(),
+                            "Error Validasi Input", JOptionPane.ERROR_MESSAGE);
+                }
+            }
+        });
+
+        // ===== FITUR BARU VERSI 2.0: FILTER MATERI PREMIUM =====
+        btnFilterPremium.addActionListener(e -> {
+            java.util.List<Materi> hasilFilter = materiController.filterMateriPremium();
+
+            if (hasilFilter.isEmpty()) {
+                JOptionPane.showMessageDialog(this,
+                        "Tidak ada Materi Premium yang ditemukan dalam sistem.",
+                        "Filter Premium", JOptionPane.INFORMATION_MESSAGE);
+                return;
+            }
+
+            // Tampilkan hasil filter di tabel (mode sementara)
+            tableModel.setRowCount(0);
+            for (Materi m : hasilFilter) {
+                MateriPremium mp = (MateriPremium) m;
+                tableModel.addRow(new Object[]{
+                    mp.getIdMateri(),
+                    "★ " + mp.getJudulMateri(),
+                    mp.getCategoryKls() + " | SKS: " + mp.getJumlahSks(),
+                    "[" + mp.getTingkatKesulitan() + "] " + mp.getIsiMateri(),
+                    mp.getStatusValidasi(),
+                    "Batas: " + mp.getBatasAkses()
+                });
+            }
+            JOptionPane.showMessageDialog(this,
+                    "Menampilkan " + hasilFilter.size() + " Materi Premium.\nTekan 'Refresh' (Clear Form) untuk kembali ke tampilan semua materi.",
+                    "Filter Premium Aktif", JOptionPane.INFORMATION_MESSAGE);
+        });
     }
 
-    /**
-     * Mengosongkan isian teks pada seluruh form komponen input (id, judul, kategori, isi) 
-     * serta membersihkan fokus seleksi aktif pada baris tabel.
-     */
+   
     private void clearFields() {
         txtIdMateri.setText("");
         txtJudul.setText("");
         txtKategori.setText("");
         txtIsi.setText("");
         table.clearSelection();
+        refreshTableData(); // Mengembalikan tampilan tabel penuh setelah filter
     }
 
-    /**
-     * Main method internal khusus peluncuran thread GUI MateriApp.
-     * Mengonfigurasi Look and Feel agar tampilan jendela selaras dengan tema sistem operasi komputer.
-     * * @param args argumen baris perintah eksekusi (opsional).
-     */
+   
     public static void main(String[] args) {
         SwingUtilities.invokeLater(() -> {
             try {
