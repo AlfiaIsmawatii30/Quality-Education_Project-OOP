@@ -1,3 +1,9 @@
+## Update versi 2.0
+
+pada versi 2.0 ini, aplikasi Quality Education ditambahkan fitur *Materi Premium * sebagai kategori prioritas dalam sistem manajemen pembelajaran. Fitur ini memungkinkan Instruktur untuk membuat materi dengan tingkat kesulitan dan harga akses khusus yang berbeda dari materi biasa.
+
+Pembaruan ini mencakup penambahan subclass "MateriPremium' yang mewarisi class "Materi", fitur filter untuk menampilkan hanya materi premium dari daftar, custom exception untuk validasi input, serta menu interarktif baru yang terintegrasi dengan sistem yang sudah ada.
+
 # Quality Education — OOP Project
 
 Quality Education adalah aplikasi manajemen pembelajaran berbasis Java yang berjalan di konsol (terminal). Aplikasi ini mensimulasikan sistem interaksi antara Admin, Instruktur, dan Siswa dalam proses pembelajaran digital.
