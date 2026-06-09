@@ -269,3 +269,12 @@ test:      tambah atau perbaiki test
 
 *Tugas Akhir Mata Kuliah Pemrograman Berorientasi Objek*  
 *Program Studi Teknologi Rekayasa Perangkat Lunak — Politeknik Negeri Madiun 2026*
+
+
+
+
+# Update Versi 2.0 - Sistem Manajemen Distribusi Materi Digital
+
+Aplikasi ini telah diperbarui ke Versi 2.0 untuk memenuhi indikator kompetensi UAS berupa penguatan struktur OOP, manajemen koleksi data, dan ketahanan sistem (robustness). Pembaruan utama meliputi implementasi kelas baru `Kaprodi` sebagai subclass dari `User`, serta penambahan fitur `filterKhususKaprodi()` di dalam `AuthController` yang memanfaatkan *framework* Collections `ArrayList` untuk menyaring data aktor secara polimorfik.
+
+Selain itu, aspek *robustness testing* diterapkan pada interaksi menu CLI melalui mekanisme penanganan kesalahan kustom menggunakan `InputTidakValidException`. Program akan menangkap setiap masukan kosong dari pengguna menggunakan blok `try-catch` guna mencegah terjadinya kegagalan sistem (*crash* atau *force close*), sehingga menjamin alur eksekusi aplikasi tetap berjalan normal hingga peluncuran antarmuka grafis (GUI) `MateriApp`.
