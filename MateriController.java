@@ -1,14 +1,6 @@
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * Kelas pengontrol (Controller) yang mengatur manajemen data materi pembelajaran.
- * Kelas ini menangani siklus hidup operasi CRUD (Create, Read, Update, Delete) materi,
- * serta menjembatani alur proses validasi publikasi materi antara {@link Admin},
- * {@link Instruktur}, dan {@link Siswa} yang terintegrasi dengan sistem notifikasi.
- * * @author Kelompok 4
- * @version 1.0
- */
 public class MateriController {
 
     /**
@@ -143,8 +135,81 @@ public class MateriController {
     }
 
     /**
+     * Membuat dan menambahkan objek MateriPremium baru ke dalam sistem.
+     * Selain menyimpan ke daftar materi yang sama dengan materi biasa (Collections),
+     * method ini juga mengirimkan notifikasi khusus bertanda [PREMIUM] ke seluruh Admin.
+     *
+     * @param judul            judul utama konten materi premium.
+     * @param kategori         klasifikasi target tingkatan kelas.
+     * @param isi              narasi atau penjabaran materi.
+     * @param pembuat          objek {@link Instruktur} selaku penyusun materi.
+     * @param tingkatKesulitan tingkat kesulitan materi (misal: "Sulit").
+     * @param jumlahSks        jumlah SKS yang diberikan (harus > 0).
+     * @param batasAkses       batas tanggal akses eksklusif (format: "yyyy-MM-dd HH:mm").
+     * @param notifController  kontroler perantara pengiriman pesan notifikasi.
+     * @param authController   kontroler pencari daftar pengguna aktif dalam sistem.
+     * @throws InputTidakValidException jika jumlahSks <= 0 atau field penting kosong.
+     */
+    public void addMateriPremium(String judul, String kategori, String isi,
+                                  Instruktur pembuat, String tingkatKesulitan,
+                                  int jumlahSks, String batasAkses,
+                                  NotifikasiController notifController,
+                                  AuthController authController)
+            throws InputTidakValidException {
+
+        // Validasi input krusial menggunakan Custom Exception
+        if (judul == null || judul.trim().isEmpty()) {
+            throw new InputTidakValidException("Judul materi premium tidak boleh kosong!");
+        }
+        if (jumlahSks <= 0) {
+            throw new InputTidakValidException(
+                    "Jumlah SKS tidak valid! Nilai harus lebih dari 0, namun diterima: " + jumlahSks);
+        }
+        if (batasAkses == null || batasAkses.trim().isEmpty()) {
+            throw new InputTidakValidException("Batas akses materi premium tidak boleh kosong!");
+        }
+
+        MateriPremium materiPremium = new MateriPremium(
+                nextId++, judul, kategori, isi, pembuat,
+                tingkatKesulitan, jumlahSks, batasAkses);
+
+        // Disimpan ke Collections (List<Materi>) yang SAMA dengan materi biasa
+        materiList.add(materiPremium);
+        System.out.println("Materi Premium berhasil ditambahkan: ★ " + judul);
+
+        // Notifikasi khusus premium ke semua Admin
+        String judulAdmin = "[PREMIUM] Persetujuan Materi Prioritas Baru";
+        String pesanAdmin = "Instruktur " + pembuat.getUsername()
+                + " mengajukan materi PREMIUM '" + judul
+                + "' (SKS: " + jumlahSks + "). Mohon segera divalidasi!";
+
+        for (User user : authController.getUserList()) {
+            if (user instanceof Admin) {
+                notifController.kirimNotifikasi((Admin) user, judulAdmin, pesanAdmin);
+            }
+        }
+    }
+
+    /**
+     * Memfilter dan mengembalikan hanya daftar materi bertipe Premium dari Collections.
+     * Memanfaatkan operator {@code instanceof} untuk menyeleksi objek {@link MateriPremium}
+     * dari dalam List utama yang juga menyimpan materi biasa.
+     *
+     * @return {@link List} berisi hanya objek-objek {@link MateriPremium} yang terdaftar.
+     */
+    public List<Materi> filterMateriPremium() {
+        List<Materi> hasilFilter = new ArrayList<>();
+        for (Materi m : materiList) {
+            if (m instanceof MateriPremium) {
+                hasilFilter.add(m);
+            }
+        }
+        return hasilFilter;
+    }
+
+    /**
      * Mengambil jumlah total materi yang saat ini tersimpan di dalam memori list sistem.
-     * * @return nilai integer representasi ukuran jumlah total data materi.
+     * @return nilai integer representasi ukuran jumlah total data materi.
      */
     public int getSize() { return materiList.size(); }
 }
